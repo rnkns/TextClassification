@@ -71,7 +71,9 @@ class NaiveBayes:
         score = math.log(float(self.topiccount[topic]) / total)
         for word in doc:
             score += math.log(self.word_prob(word, topic))
-            # print("P({0}|{1}): ".format(word, cat), self.word_prob(word, cat))
+            '''print("P({0}|{1}): ".format(word, cat),
+                self.word_prob(word, cat))
+            '''
         return score
 
     # 訓練データに関する情報
@@ -135,30 +137,21 @@ def scraping(topics, pages):
         train_data = ""
         for news in news_list:
             news_html = pyquery.PyQuery(news)
+            # 訓練データ集合に名詞のみ抽出された1訓練データを追加
             if count <= trains and count >= 1:
                 train_dataset.append(noun_extract(
                     count, train_data, topic))
             elif count > trains and count >= 1:
                 noun_extract(count, train_data, topic)
-            
-            #print(train_data)
+
             train_data = ""
             for div in news_html('div').items():
                 if div.hasClass('paragraph') == True:
                     if div.hasClass('ynDetailHeading'):
                         news_title = div.text()
                     for p in div('p').items():
-                        # 訓練用データ
                         if p.hasClass('ynDetailText'):
-                            # 訓練データ集合に名詞のみ抽出された1訓練データを追加
                             train_data += p.text()
-                            # train_dataset.append(noun_extract(
-                            #    count, p.text(), topic))
-                            print(count, trains)
-                        # テスト用データ
-#                        elif p.hasClass('ynDetailText') and count > trains:
-                            # print(count, trains)
-                            # noun_extract(count, p.text(), topic)
             count += 1
         return train_dataset
 
@@ -209,7 +202,8 @@ def test_nb(topics, article_num_list):
     # 各トピックに対する尤度の出力
     def output_prob(test_number, test_data):
         for topic in topics:
-            print("log P({0}|test) =".format(topic), nb.score(test_data, topic))
+            print("log P({0}|test) =".format(topic),
+                  nb.score(test_data, topic))
 
     for topic in topics:
         topic_number += 1
@@ -235,7 +229,7 @@ def test_nb(topics, article_num_list):
             del test_data[0]    # リストの先頭にあるトピック名の削除
 
             print("{0}{1}{2}{3}_{4}.txt".format(
-                topics[topic_number-1], str(year), str(month), str(day), str(test_number-1)),
+                topic, str(year), str(month), str(day), str(test_number-1)),
                 "{ Correct Topic: ", correct_topic, "}")
             # output_prob(test_number-1, test_data)   # 各トピックに対する尤度の出力
             print(nb.classify(test_data))
